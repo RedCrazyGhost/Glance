@@ -4,6 +4,6 @@
 
 **/
 
-package main
+package core
 
-const VERSION = "v0.0.2"
+// todo 补充开发工具函数
