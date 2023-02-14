@@ -32,7 +32,7 @@ func NewChannelTrieNode(char rune, deep uint8) *ChannelTrieNode {
 		char:         char,
 		isEnding:     false,
 		deep:         deep,
-		TradeChannel: nil,
+		TradeChannel: unknown,
 		children:     make(map[rune]*ChannelTrieNode),
 	}
 }

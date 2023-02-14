@@ -10,7 +10,7 @@ package core
 type TradeChannel uint8
 
 const (
-	nil TradeChannel = iota
+	unknown TradeChannel = iota
 	Alipay
 	WeChatpay
 	Tenpay

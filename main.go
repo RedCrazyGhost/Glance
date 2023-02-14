@@ -6,8 +6,20 @@
 
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
+
+func init() {
+	initLog()
+
+}
 
 func main() {
 	fmt.Println("Hello,world！I am Glance!")
+	gloabalLog.Println("test")
+}
+
+func close() {
+
 }

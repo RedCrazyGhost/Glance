@@ -14,19 +14,20 @@ import (
 
 // TradeFlow 交易流
 type TradeFlow struct {
-	head *TradeNode
+	Head *TradeNode
+	End  *TradeNode
 }
 
 // NewDefaultTradeFlow 创建默认交易流
-func NewDefaultTradeFlow() *Trade {
+func NewDefaultTradeFlow() *TradeFlow {
 	tradeNode := NewTradeNode(0.0)
-	return &TradeFlow{tradeNode}
+	return &TradeFlow{tradeNode, tradeNode}
 }
 
 // NewTradeFlow 根据cash创建初试交易流
-func NewTradeFlow(cash float64) *Trade {
+func NewTradeFlow(cash float64) *TradeFlow {
 	tradeNode := NewTradeNode(cash)
-	return &TradeFlow{tradeNode}
+	return &TradeFlow{tradeNode, tradeNode}
 }
 
 // TradeNode 节点
@@ -53,7 +54,9 @@ func NewTradeNode(cash float64) *TradeNode {
 	tradeNode := TradeNode{
 		Cash: cash,
 	}
+	tradeNode.setId()
 
+	return &tradeNode
 }
 
 // setCash 设置现金
@@ -72,6 +75,6 @@ func (n *TradeNode) setTime(datetimestr string) {
 // setId 设置唯一标识
 // 使用hash算法
 func (n *TradeNode) setId() {
-	bytes := md5.Sum([]byte(n.Meta + n.Datetime.String()))
+	bytes := md5.Sum([]byte(n.Meta))
 	n.Id = fmt.Sprint(bytes)
 }
