@@ -8,6 +8,7 @@ package parser
 
 import "Glance/core"
 
+// todo Parser解析怎么做
 type Generator interface {
 	parser() *core.TradeNode
 }

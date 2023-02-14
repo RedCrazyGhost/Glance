@@ -20,6 +20,8 @@ import (
 // readCSV 读取CSV文件内容
 // 注意！.csv 文件编码集有存在问题
 // 统一使用UTF-8编码集
+// # 前缀忽略
+// todo 思考 输入数据后的处理
 func readCSV(filepath string) {
 	file, err := os.Open(filepath)
 	if err != nil {

@@ -22,8 +22,16 @@ func TestLog(t *testing.T) {
 func TestNewLogPool(t *testing.T) {
 	pool := NewLogPool()
 	pool.append(NewLog("1826test"))
+	pool.append(NewLog("1830test"))
 	l := pool.indexOf(0)
 	l.Println("ok")
-	fmt.Printf("%s", l.name)
-	pool.show()
+	fmt.Printf("%s\n", l.name)
+	err := pool.closeLog("1826test")
+	if err != nil {
+		return
+	}
+	err = pool.closeAll()
+	if err != nil {
+		return
+	}
 }
