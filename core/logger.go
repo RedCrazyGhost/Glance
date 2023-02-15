@@ -4,10 +4,9 @@
 
 **/
 
-package main
+package core
 
 import (
-	"Glance/core"
 	"errors"
 	"fmt"
 	"io"
@@ -26,24 +25,23 @@ type Log struct {
 	f    *os.File
 }
 
-var logPool *LogPool
+var SystemLogPool *LogPool
 
 var GloabalLog *Log
 var FailLog *Log
 
-func initLog() {
-	err := os.MkdirAll("./log/"+core.NowDateString(), os.ModePerm)
+func InitLog() {
+	err := os.MkdirAll("./log/"+NowDateString(), os.ModePerm)
 	if err != nil {
 		GloabalLog.Fatalln("日志文件初始化失败")
 	}
-	logPool = NewLogPool()
+	SystemLogPool = NewLogPool()
 	GloabalLog = NewLog("Gloabal")
-	logPool.append(GloabalLog)
+	SystemLogPool.append(GloabalLog)
 	FailLog = NewLog("Fail")
-	logPool.append(FailLog)
+	SystemLogPool.append(FailLog)
 
-	GloabalLog.Printf(core.NewLogMessage("logPoll", "初始化完成！"))
-	GloabalLog.Println(core.NewAppMessage("Glance", "Version->"+VERSION))
+	GloabalLog.Println(NewLogMessage("logPoll", "初始化完成！"))
 }
 
 // NewLogPool 创建LogPool
@@ -77,7 +75,7 @@ func (p *LogPool) append(l *Log) {
 func (p *LogPool) closeLog(logName string) error {
 	closeLog, err := p.getLog(logName)
 	if err != nil {
-		GloabalLog.Println(core.NewLogMessage(logName, err.Error()))
+		GloabalLog.Println(NewLogMessage(logName, err.Error()))
 	}
 	err = closeLog.close()
 	if err != nil {
@@ -85,7 +83,7 @@ func (p *LogPool) closeLog(logName string) error {
 	}
 	err = p.deleteLog(closeLog)
 	if err != nil {
-		FailLog.Println(core.NewLogMessage("LogPool", err.Error()))
+		FailLog.Println(NewLogMessage("LogPool", err.Error()))
 		return err
 	}
 	return nil
@@ -113,7 +111,7 @@ func (p *LogPool) deleteLog(l *Log) error {
 
 // closeAll 关闭所有日志文件流
 // 最后一个关闭GlobalLog日志
-func (p *LogPool) closeAll() error {
+func (p *LogPool) CloseAll() error {
 	Len := len(p.Logs)
 
 	if Len > 2 {
@@ -124,7 +122,7 @@ func (p *LogPool) closeAll() error {
 			}
 			err = p.deleteLog(p.Logs[i])
 			if err != nil {
-				FailLog.Println(core.NewLogMessage("LogPool", err.Error()))
+				FailLog.Println(NewLogMessage("LogPool", err.Error()))
 				return err
 			}
 		}
@@ -136,7 +134,7 @@ func (p *LogPool) closeAll() error {
 		}
 		err = p.deleteLog(p.Logs[i])
 		if err != nil {
-			FailLog.Println(core.NewLogMessage("LogPool", err.Error()))
+			FailLog.Println(NewLogMessage("LogPool", err.Error()))
 			return err
 		}
 	}
@@ -147,11 +145,11 @@ func (p *LogPool) closeAll() error {
 // NewLog 实例化Log
 func NewLog(name string) *Log {
 	l := &Log{name: name}
-	filepath := fmt.Sprintf("./log/%s/%s.log", core.NowDateString(), name)
+	filepath := fmt.Sprintf("./log/%s/%s.log", NowDateString(), name)
 	file, err := os.OpenFile(filepath, os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
 	l.f = file
 	if err != nil {
-		l.l.Fatalln(core.NewLogMessage(name, "日志初始化失败!"))
+		l.l.Fatalln(NewLogMessage(name, "日志初始化失败!"))
 	}
 	multiWriter := io.MultiWriter(os.Stdout, file)
 	l.l = log.New(multiWriter, "", log.LstdFlags|log.Lshortfile)
@@ -162,11 +160,18 @@ func NewLog(name string) *Log {
 func (l *Log) close() error {
 	err := l.f.Close()
 	if err != nil {
-		GloabalLog.l.Print(core.NewLogMessage(l.name, "文件流关闭失败！原因->"+err.Error()))
+		GloabalLog.l.Print(NewLogMessage(l.name, "文件流关闭失败！原因->"+err.Error()))
 		return err
 	}
-	GloabalLog.l.Print(core.NewLogMessage(l.name, "文件流关闭成功！"))
+	GloabalLog.l.Print(NewLogMessage(l.name, "文件流关闭成功！"))
 	return nil
+}
+
+// Println 日志池内所有Log打印日志
+func (p *LogPool) Println(v ...any) {
+	for _, l := range p.Logs {
+		l.Println(fmt.Sprint(v...))
+	}
 }
 
 // Printf 封装log.Logger的Printf
