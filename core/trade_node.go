@@ -19,12 +19,14 @@ type TradeFlow struct {
 }
 
 // NewDefaultTradeFlow 创建默认交易流
+// todo 重写内容
 func NewDefaultTradeFlow() *TradeFlow {
 	tradeNode := NewTradeNode(0.0)
 	return &TradeFlow{tradeNode, tradeNode}
 }
 
 // NewTradeFlow 根据cash创建初试交易流
+// todo 重写内容
 func NewTradeFlow(cash float64) *TradeFlow {
 	tradeNode := NewTradeNode(cash)
 	return &TradeFlow{tradeNode, tradeNode}
@@ -42,21 +44,30 @@ type TradeNode struct {
 	TradeChannels []TradeChannel // 交易渠道
 	TradeTags     []TradeTag     // 交易标签
 	Annotation    string         // 注解
-	Meta          string         // 元数据
+
+	Parser *Parser // 解析模版
+	Meta   string  // 元数据
 
 	Last *TradeNode
 	Next *TradeNode
 }
 
 // NewTradeNode 创建交易节点
-// todo 完善交易节点的创建
-func NewTradeNode(cash float64) *TradeNode {
-	tradeNode := TradeNode{
-		Cash: cash,
+// todo 完成初始化函数
+func NewTradeNode(Balance       float64 ,
+Cash          float64        ,
+Datetime      time.Time     ,
+TradeType     TradeType     ,
+TradeAmount   float64       ,
+TradeChannels []TradeChannel ,
+TradeTags     []TradeTag    ,
+Annotation    string     ) *TradeNode {
+	node := TradeNode{
+		Cash: ,
 	}
-	tradeNode.setId()
+	node.setId()
 
-	return &tradeNode
+	return &node
 }
 
 // setCash 设置现金
@@ -67,9 +78,8 @@ func (n *TradeNode) setCash(cash float64) {
 
 // setTime 设置时间
 // 解析时间字符串用于TradeNode
-// todo 开发 日期时间文本解析成Time.time
-func (n *TradeNode) setTime(datetimestr string) {
-
+func (n *TradeNode) setdateTime(layout string) error {
+	return nil
 }
 
 // setId 设置唯一标识
@@ -77,4 +87,8 @@ func (n *TradeNode) setTime(datetimestr string) {
 func (n *TradeNode) setId() {
 	bytes := md5.Sum([]byte(n.Meta))
 	n.Id = fmt.Sprint(bytes)
+}
+
+func (n *TradeNode) parser() {
+
 }

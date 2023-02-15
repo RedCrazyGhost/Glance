@@ -29,6 +29,11 @@ func NewAppMessage(Obj, Msg string) *Message {
 	return NewMessage("应用/Application", Obj, Msg)
 }
 
+// NewAppMessage 交易节点消息模版
+func NewTradeNodeMessage(Obj, Msg string) *Message {
+	return NewMessage("交易节点/TradeNode", Obj, Msg)
+}
+
 func (c Message) String() string {
 	return fmt.Sprintf("Mod:%s Obj:%v Msg:%s", c.Mod, c.Obj, c.Msg)
 }

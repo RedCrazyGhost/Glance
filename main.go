@@ -12,20 +12,21 @@ import (
 )
 
 func init() {
-	initLog()
+	core.InitLog()
 	//配置初始化
 
 }
 
 func main() {
-	GloabalLog.Println(core.NewAppMessage("main", "项目启动！"))
+	core.GloabalLog.Println(core.NewAppMessage("Glance", "Version->"+VERSION))
+	core.GloabalLog.Println(core.NewAppMessage("main", "项目启动！"))
 	fmt.Println("Hello,world！I am Glance!")
-	GloabalLog.Println(core.NewAppMessage("main", "项目关闭！"))
+	core.GloabalLog.Println(core.NewAppMessage("main", "项目关闭！"))
 	close()
 }
 
 func close() {
-	err := logPool.closeAll()
+	err := core.SystemLogPool.CloseAll()
 	if err != nil {
 		return
 	}
