@@ -6,6 +6,8 @@
 
 package core
 
+var TradeChannelTrie *ChannelTrie
+
 // ChannelTrie 支付渠道树
 type ChannelTrie struct {
 	root *ChannelTrieNode
@@ -15,6 +17,14 @@ type ChannelTrie struct {
 func NewChannelTrie() *ChannelTrie {
 	trieNode := NewChannelTrieNode('!', 0)
 	return &ChannelTrie{trieNode}
+}
+
+// InitChannelTrie 初始化树
+func InitChannelTrie() {
+	TradeChannelTrie = NewChannelTrie()
+	for key, value := range channelMap {
+		TradeChannelTrie.insert(value, key)
+	}
 }
 
 // ChannelTrieNode 字典树
@@ -53,11 +63,12 @@ func (t *ChannelTrie) insert(word string, channel TradeChannel) {
 }
 
 // find 寻找匹配名称的支付渠道名称
-func (t *ChannelTrie) find(str []rune) []TradeChannel {
+func (t *ChannelTrie) find(str string) []TradeChannel {
+	runes := []rune(str)
 	var channels []TradeChannel
 	node := t.root
-	for i := 0; i < len(str); i++ {
-		value, ok := node.children[str[i]]
+	for i := 0; i < len(runes); i++ {
+		value, ok := node.children[runes[i]]
 		if ok {
 			node = value
 			if node.isEnding {
