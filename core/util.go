@@ -7,7 +7,9 @@
 package core
 
 import (
+	"crypto/md5"
 	"encoding/csv"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"log"
@@ -46,6 +48,15 @@ func readCSV(filepath string) {
 }
 
 func NowDateString() string {
-	year, month, day := time.Now().Date()
-	return fmt.Sprintf("%d-%d-%d", year, month, day)
+	return time.Now().Format("2006-01-02")
+}
+
+func NowDateTimeString() string {
+	return time.Now().Format("2006-01-02 15:04:05")
+}
+
+func MD5(sum []byte, value ...string) string {
+	hash := md5.New()
+	hash.Write([]byte(NowDateTimeString() + fmt.Sprintf("%v", value)))
+	return hex.EncodeToString(hash.Sum(sum))
 }
