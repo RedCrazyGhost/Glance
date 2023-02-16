@@ -7,7 +7,6 @@
 package core
 
 import (
-	"crypto/md5"
 	"errors"
 	"fmt"
 	"strconv"
@@ -61,8 +60,8 @@ func NewTradeNode(parse Parser, metadata ...string) *TradeNode {
 }
 
 //setTradeChannelByMeta 设置交易渠道
-func (n *TradeNode) setTradeChannelByMeta(index int) error {
-	tradeChannelstr := n.Meta[index]
+func (n *TradeNode) setTradeChannelByMeta(index interface{}) error {
+	tradeChannelstr := n.Meta[index.(int)]
 	if len(tradeChannelstr) > 0 {
 		channels := TradeChannelTrie.find(tradeChannelstr)
 		n.TradeChannels = channels
@@ -82,8 +81,8 @@ func (n *TradeNode) setTradeType(tradeAmount float64) {
 }
 
 // setAnnotationByMeta 设置交易对象
-func (n *TradeNode) setAnnotationByMeta(index int) error {
-	annotation := n.Meta[index]
+func (n *TradeNode) setAnnotationByMeta(index interface{}) error {
+	annotation := n.Meta[index.(int)]
 	if len(annotation) > 0 {
 		n.Annotation = annotation
 		return nil
@@ -93,8 +92,8 @@ func (n *TradeNode) setAnnotationByMeta(index int) error {
 }
 
 // setLBalanceByMeta 设置上个节点余额
-func (n *TradeNode) setLBalanceByMeta(index int) error {
-	balacncestr := n.Meta[index]
+func (n *TradeNode) setLBalanceByMeta(index interface{}) error {
+	balacncestr := n.Meta[index.(int)]
 	if len(balacncestr) > 0 {
 		// 处理科学计数法
 		balance, err := strconv.ParseFloat(strings.ReplaceAll(balacncestr, ",", ""), 64)
@@ -109,44 +108,80 @@ func (n *TradeNode) setLBalanceByMeta(index int) error {
 }
 
 // setTradeAmountByMeta 设置交易金额
-// 用于建立链表的第一个节点
-func (n *TradeNode) setTradeAmountByMeta(index int) error {
-	tradeAmountstr := n.Meta[index]
-	if len(tradeAmountstr) > 0 {
-		// 处理科学计数法
-		tradeAmount, err := strconv.ParseFloat(strings.ReplaceAll(tradeAmountstr, ",", ""), 64)
-		if err != nil {
-			return errors.New("交易后金额数据解析错误！")
+func (n *TradeNode) setTradeAmountByMeta(index interface{}) error {
+	v := 0.0
+	switch index.(type) {
+	case int:
+		i := index.(int)
+		tradeAmountstr := n.Meta[i]
+		if len(tradeAmountstr) > 0 {
+			// 处理科学计数法
+			tradeAmount, err := strconv.ParseFloat(strings.ReplaceAll(tradeAmountstr, ",", ""), 64)
+			if err != nil {
+				return errors.New("交易后金额数据解析错误！")
+			}
+			v += tradeAmount
+		} else {
+			return errors.New("交易后金额数据不存在！")
 		}
-		n.TradeAmount = tradeAmount
-		n.setTradeType(n.TradeAmount)
-		return nil
-	} else {
-		return errors.New("交易后金额数据不存在！")
+		break
+	case []int:
+		arr := make([]int, 0)
+		arr = index.([]int)
+		for _, i := range arr {
+			tradeAmountstr := n.Meta[i]
+			if len(tradeAmountstr) > 0 {
+				// 处理科学计数法
+				tradeAmount, err := strconv.ParseFloat(strings.ReplaceAll(tradeAmountstr, ",", ""), 64)
+				if err != nil {
+					return errors.New("交易后金额数据解析错误！")
+				}
+				v += tradeAmount
+			} else {
+				return errors.New("交易后金额数据不存在！")
+			}
+		}
+		break
 	}
+	n.TradeAmount = v
+	n.setTradeType(n.TradeAmount)
+	n.setCashByMeta(nil)
+	return nil
 }
 
 // setCashByMeta 设置现金
 // 用于建立链表的第一个节点
-func (n *TradeNode) setCashByMeta(index int) error {
-	cashstr := n.Meta[index]
-	if len(cashstr) > 0 {
-		// 处理科学计数法
-		cash, err := strconv.ParseFloat(strings.ReplaceAll(cashstr, ",", ""), 64)
-		if err != nil {
-			return errors.New("交易后金额数据解析错误！")
+func (n *TradeNode) setCashByMeta(index interface{}) error {
+	if index == nil {
+		if n.TradeType == Increase {
+			n.Cash = n.LBalance + n.TradeAmount
+		} else {
+			n.Cash = n.LBalance - n.TradeAmount
 		}
-		n.Cash = cash
 		return nil
-	} else {
-		return errors.New("交易后金额数据不存在！")
 	}
+	switch index.(type) {
+	case int:
+		cashstr := n.Meta[index.(int)]
+		if len(cashstr) > 0 {
+			// 处理科学计数法
+			cash, err := strconv.ParseFloat(strings.ReplaceAll(cashstr, ",", ""), 64)
+			if err != nil {
+				return errors.New("交易后金额数据解析错误！")
+			}
+			n.Cash = cash
+			return nil
+		} else {
+			return errors.New("交易后金额数据不存在！")
+		}
+	}
+	return nil
 }
 
 // setTime 设置时间
 // 解析时间字符串用于TradeNode
-func (n *TradeNode) setDateTimeByMeta(index int) error {
-	datetimestr := n.Meta[index]
+func (n *TradeNode) setDateTimeByMeta(index interface{}) error {
+	datetimestr := n.Meta[index.(int)]
 	if len(datetimestr) > 0 {
 		datetime, err := time.Parse(n.Parser.layout(), datetimestr)
 		if err != nil {
@@ -161,8 +196,8 @@ func (n *TradeNode) setDateTimeByMeta(index int) error {
 }
 
 // setTargetByMeta 设置交易对象
-func (n *TradeNode) setTargetByMeta(index int) error {
-	target := n.Meta[index]
+func (n *TradeNode) setTargetByMeta(index interface{}) error {
+	target := n.Meta[index.(int)]
 	if len(target) > 0 {
 		n.Target = target
 		return nil
@@ -174,8 +209,7 @@ func (n *TradeNode) setTargetByMeta(index int) error {
 // setId 设置唯一标识
 // 使用hash算法
 func (n *TradeNode) setId() error {
-	bytes := md5.Sum([]byte(fmt.Sprint(n.Meta)))
-	n.Id = fmt.Sprintf("%v", bytes)
+	n.Id = MD5(nil, n.Meta...)
 	return nil
 }
 

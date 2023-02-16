@@ -8,7 +8,7 @@ package core
 
 type Parser interface {
 	layout() string
-	matchingIndex() map[string]int
+	matchingIndex() map[string]interface{}
 }
 
 type AlipayParser struct {
@@ -20,12 +20,13 @@ func (p AlipayParser) layout() string {
 }
 
 // matchingIndex 匹配数组所在的index位置
-func (p AlipayParser) matchingIndex() map[string]int {
-	m := make(map[string]int)
+func (p AlipayParser) matchingIndex() map[string]interface{} {
+	m := make(map[string]interface{})
 	m["Annotation"] = 3
 	m["DateTime"] = 4
 	m["Target"] = 5
 	m["TradeChannel"] = 9
+	m["TradeAmount"] = []int{6, 7}
 	return m
 }
 
