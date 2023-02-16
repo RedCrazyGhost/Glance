@@ -30,7 +30,7 @@ func TestNewLogPool(t *testing.T) {
 	if err != nil {
 		return
 	}
-	err = pool.closeAll()
+	err = pool.CloseAll()
 	if err != nil {
 		return
 	}

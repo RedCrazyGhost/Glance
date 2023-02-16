@@ -18,7 +18,8 @@ const (
 	CCB
 )
 
-// todo 思考 是否要常驻内存，完成建树后回收map内存
+// todo 完善内容
+// 思考 建树完成后是否会自动GC
 var channelMap = map[TradeChannel]string{
 	Alipay:    "支付宝",
 	WeChatpay: "微信支付",

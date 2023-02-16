@@ -41,7 +41,7 @@ func InitLog() {
 	FailLog = NewLog("Fail")
 	SystemLogPool.append(FailLog)
 
-	GloabalLog.Println(NewLogMessage("logPoll", "初始化完成！"))
+	GloabalLog.Println(NewLogMessage("logPool", "初始化完成！"))
 }
 
 // NewLogPool 创建LogPool
