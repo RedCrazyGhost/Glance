@@ -6,31 +6,27 @@
 
 package core
 
-import "reflect"
-
 type Parser interface {
-	parserArrayIndex() map[*reflect.StructField]int
+	layout() string
+	matchingIndex() map[string]int
 }
 
 type AlipayParser struct {
 }
 
-// todo 编写解析内容
-func (p AlipayParser) parserArrayIndex() {
-	typeOfTradeNode := reflect.TypeOf(TradeNode{})
-
-	name, b := typeOfTradeNode.FieldByName("Annotation")
-	name.Index
-
-	//datatimestr := metastr[4]
-	//targetstr := metastr[5]
-	//incomestr := metastr[6]
-	//expenditurestr := metastr[7]
-	//blancestr := metastr[8]
-	//channelstr := metastr[9]
-	//tagstr := metastr[10]
-	//annotationstr := metastr[11]
-
-	NewTradeNode()
-	return nil
+// layout 时间解析样本
+func (p AlipayParser) layout() string {
+	return "2006/1/2 15:04"
 }
+
+// matchingIndex 匹配数组所在的index位置
+func (p AlipayParser) matchingIndex() map[string]int {
+	m := make(map[string]int)
+	m["Annotation"] = 3
+	m["DateTime"] = 4
+	m["Target"] = 5
+	m["TradeChannel"] = 9
+	return m
+}
+
+// todo 通过反射执行不同的方法完成赋值
