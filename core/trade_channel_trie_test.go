@@ -16,6 +16,6 @@ func TestNewTrie(t *testing.T) {
 	for key, value := range channelMap {
 		trie.insert(value, key)
 	}
-	channels := trie.find("财付通-支付宝-中国建设银行")
+	channels := trie.find("财付支付宝0134微信支付-支付宝-中国建设银行")
 	fmt.Printf("%v\n", channels)
 }
