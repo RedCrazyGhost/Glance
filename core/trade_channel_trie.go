@@ -75,7 +75,9 @@ func (t *ChannelTrie) find(str string) []TradeChannel {
 				channels = append(channels, node.TradeChannel)
 				node = t.root
 			}
+		} else {
+			node = t.root
 		}
 	}
-	return channels
+	return RemoveRepeatedElement(channels)
 }
