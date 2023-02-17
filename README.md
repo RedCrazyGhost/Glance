@@ -1,13 +1,19 @@
 # Glance(瞥一眼)
 
+## Glance Development Programming
 ```mermaid
 gantt
-    title Glance Development Programming
     dateFormat  MM-DD
     section RedCrazyGhost
     Code Consolidation :a1, 02-13, 7d
     servitization     :after a1  , 7d
 ```
+
+1. update TradeTags(trie?)
+2. add parser confige file
+3. add gin
+4. add gorm
+
 
 ## Use Glance
 
