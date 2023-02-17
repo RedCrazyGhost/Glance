@@ -26,13 +26,18 @@ func main() {
 	core.GloabalLog.Println(core.NewAppMessage("main", "项目启动！"))
 	fmt.Println("Hello,world！I am Glance!")
 
-	node := core.NewTradeNode(core.AlipayParser{}, []string{"1**********1", "2**************9", "4**********5", "收钱码收款", "2022/11/1 21:05", "**峰(194***@qq.com)", "300", "0", "481.61", "支付宝", "在线支付", ""}...)
-	fmt.Println(node)
+	flow := core.NewDefaultTradeFlow()
+	err := core.ReadCSV("test.csv", flow)
+	if err != nil {
+		core.FailLog.Println(err.Error())
+	}
+	flow.Show()
+
 	core.GloabalLog.Println(core.NewAppMessage("main", "项目关闭！"))
-	close()
+	closeLog()
 }
 
-func close() {
+func closeLog() {
 	err := core.SystemLogPool.CloseAll()
 	if err != nil {
 		return

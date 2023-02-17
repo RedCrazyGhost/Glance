@@ -13,7 +13,7 @@ import (
 
 func TestReadCSV(t *testing.T) {
 	filename := "test.csv"
-	readCSV(filename)
+	ReadCSV(filename, nil)
 }
 
 func TestNowDateString(t *testing.T) {
