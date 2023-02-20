@@ -19,6 +19,7 @@ type LogPool struct {
 	Logs []*Log
 }
 
+// Log 存在log.short获取的位置不是预期位置，考虑runtime.Caller处理
 type Log struct {
 	name string
 	l    *log.Logger
@@ -30,6 +31,7 @@ var SystemLogPool *LogPool
 var GloabalLog *Log
 var FailLog *Log
 
+// InitLog 初始化日志
 func InitLog() {
 	err := os.MkdirAll("./log/"+NowDateString(), os.ModePerm)
 	if err != nil {
@@ -59,7 +61,7 @@ func (p *LogPool) indexOf(index int) *Log {
 // getLog 通过logName获取Log
 func (p *LogPool) getLog(logName string) (*Log, error) {
 	for _, l := range p.Logs {
-		if strings.EqualFold(logName, l.name) {
+		if strings.EqualFold(logName, fmt.Sprintf("%s", l.name)) {
 			return l, nil
 		}
 	}
@@ -109,7 +111,7 @@ func (p *LogPool) deleteLog(l *Log) error {
 	return nil
 }
 
-// closeAll 关闭所有日志文件流
+// CloseAll 关闭所有日志文件流
 // 最后一个关闭GlobalLog日志
 func (p *LogPool) CloseAll() error {
 	Len := len(p.Logs)
@@ -152,7 +154,7 @@ func NewLog(name string) *Log {
 		l.l.Fatalln(NewLogMessage(name, "日志初始化失败!"))
 	}
 	multiWriter := io.MultiWriter(os.Stdout, file)
-	l.l = log.New(multiWriter, "", log.LstdFlags|log.Lshortfile)
+	l.l = log.New(multiWriter, "", log.LstdFlags)
 	return l
 }
 
@@ -160,61 +162,61 @@ func NewLog(name string) *Log {
 func (l *Log) close() error {
 	err := l.f.Close()
 	if err != nil {
-		GloabalLog.l.Print(NewLogMessage(l.name, "文件流关闭失败！原因->"+err.Error()))
+		GloabalLog.l.Print(NewLogMessage(fmt.Sprintf("%s", l.name), "文件流关闭失败！原因->"+err.Error()))
 		return err
 	}
-	GloabalLog.l.Print(NewLogMessage(l.name, "文件流关闭成功！"))
+	GloabalLog.l.Print(NewLogMessage(fmt.Sprintf("%s", l.name), "文件流关闭成功！"))
 	return nil
 }
 
 // Println 日志池内所有Log打印日志
 func (p *LogPool) Println(v ...any) {
 	for _, l := range p.Logs {
-		l.Println(fmt.Sprint(v...))
+		l.Println(fmt.Sprintf("%s", l.name), fmt.Sprint(v...))
 	}
 }
 
 // Printf 封装log.Logger的Printf
 func (l *Log) Printf(format string, v ...any) {
-	l.l.Printf(fmt.Sprintf(format, v...))
+	l.l.Printf(fmt.Sprintf("%s", l.name), fmt.Sprintf(format, v...))
 }
 
 // Println 封装log.Logger的Println
 func (l *Log) Println(v ...any) {
-	l.l.Println(fmt.Sprint(v...))
+	l.l.Println(fmt.Sprintf("%s", l.name), fmt.Sprint(v...))
 }
 
 // Print 封装log.Logger的Print
 func (l *Log) Print(v ...any) {
-	l.l.Print(fmt.Sprint(v...))
+	l.l.Print(fmt.Sprintf("%s", l.name), fmt.Sprint(v...))
 }
 
 // Fatalf 封装log.Logger的Fatalf
 func (l *Log) Fatalf(format string, v ...any) {
-	l.l.Fatalf(fmt.Sprintf(format, v...))
+	l.l.Fatalf(fmt.Sprintf("%s", l.name), fmt.Sprintf(format, v...))
 }
 
 // Fatalln 封装log.Logger的Fatalln
 func (l *Log) Fatalln(v ...any) {
-	l.l.Fatalln(fmt.Sprint(v...))
+	l.l.Fatalln(fmt.Sprintf("%s", l.name), fmt.Sprint(v...))
 }
 
 // Fatal 封装log.Logger的Fatal
 func (l *Log) Fatal(v ...any) {
-	l.l.Fatal(fmt.Sprint(v...))
+	l.l.Fatal(fmt.Sprintf("%s", l.name), fmt.Sprint(v...))
 }
 
 // Panicf 封装log.Logger的Panicf
 func (l *Log) Panicf(format string, v ...any) {
-	l.l.Panicf(fmt.Sprintf(format, v...))
+	l.l.Panicf(fmt.Sprintf("%s", l.name), fmt.Sprintf(format, v...))
 }
 
 // Panicln 封装log.Logger的Panicln
 func (l *Log) Panicln(v ...any) {
-	l.l.Panicln(fmt.Sprint(v...))
+	l.l.Panicln(fmt.Sprintf("%s", l.name), fmt.Sprint(v...))
 }
 
 // Panic 封装log.Logger的Panic
 func (l *Log) Panic(v ...any) {
-	l.l.Panic(fmt.Sprint(v...))
+	l.l.Panic(fmt.Sprintf("%s", l.name), fmt.Sprint(v...))
 }
