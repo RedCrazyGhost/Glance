@@ -1,0 +1,15 @@
+layout: 2006/1/2 15:04
+Relation:
+  Annotation:
+    - 商品名称
+  DateTime:
+    - 发生时间
+  Target:
+    - 对方账号
+  TradeChannel:
+    - 交易渠道
+  TradeAmount:
+    - 收入金额（+元）
+    - 支出金额（-元）
+  LBalance:
+    - 账户余额（元）

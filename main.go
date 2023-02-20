@@ -8,26 +8,22 @@ package main
 
 import (
 	"Glance/core"
-	"fmt"
-	"runtime"
 )
 
 func init() {
 	core.InitLog()
 	core.InitChannelTrie()
-	//配置初始化
+	core.InitConfig()
 
-	// 初始化后GC 回收
-	runtime.GC()
 }
 
 func main() {
 	core.GloabalLog.Println(core.NewAppMessage("Glance", "Version->"+VERSION))
 	core.GloabalLog.Println(core.NewAppMessage("main", "项目启动！"))
-	fmt.Println("Hello,world！I am Glance!")
+	core.GloabalLog.Println(core.NewAppMessage("Glance", "Hello,world！I am Glance!"))
 
 	flow := core.NewDefaultTradeFlow()
-	err := core.ReadCSV("test.csv", flow)
+	err := core.ReadCSV("test.csv", "AlipayParser", flow)
 	if err != nil {
 		core.FailLog.Println(err.Error())
 	}

@@ -1,0 +1,15 @@
+layout: 20060102
+Relation:
+  Annotation:
+    - 对方账号与户名
+  DateTime:
+    - 交易日期
+  Target:
+    - 8
+  TradeChannel:
+    - 交易地点/附言
+    - 对方账号与户名
+  TradeAmount:
+    - 5
+  LBalance:
+    - 账户余额
