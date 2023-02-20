@@ -20,3 +20,9 @@ func TestAlipayParse(t *testing.T) {
 	}
 
 }
+
+// TestNewParser  日志会导致无法地址报错
+func TestNewParser(t *testing.T) {
+	parser := NewParser("AlipayParser")
+	fmt.Println(parser)
+}
