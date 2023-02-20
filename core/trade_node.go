@@ -29,7 +29,7 @@ type TradeNode struct {
 	TradeTags     []TradeTag     // 交易标签
 	Annotation    string         // 注解 ✅
 
-	Parser     Parser         // 解析模版
+	Parser     *Parser        // 解析模版
 	MetaTittle map[string]int // 元数据标题
 	MetaData   []string       // 元数据
 
@@ -38,7 +38,7 @@ type TradeNode struct {
 }
 
 // NewTradeNode 创建交易节点
-func NewTradeNode(parse Parser, metatitle []string, metadata ...string) (*TradeNode, error) {
+func NewTradeNode(parse *Parser, metatitle []string, metadata ...string) (*TradeNode, error) {
 	node := &TradeNode{
 		Parser:   parse,
 		MetaData: metadata,
@@ -60,26 +60,18 @@ func NewTradeNode(parse Parser, metatitle []string, metadata ...string) (*TradeN
 
 // countCash 计算当前余额
 func (n *TradeNode) countCash() error {
-	err := n.setLBalanceByMeta(nil)
-	if err != nil {
-		return err
-	}
-	err = n.setCashByMeta(nil)
-	if err != nil {
-		return err
-	}
-	node := n.Next
+	node := n
 	for {
 		if node != nil {
-			err := node.setCashByMeta(nil)
+			err := node.setLBalanceByMeta(nil)
 			if err != nil {
 				return err
 			}
-			if node.Next != nil {
-				node = node.Next
-			} else {
-				break
+			err = node.setCashByMeta(nil)
+			if err != nil {
+				return err
 			}
+			node = node.Next
 		} else {
 			break
 		}
@@ -153,36 +145,59 @@ func (n *TradeNode) setLBalanceByMeta(index interface{}) error {
 	if index == nil {
 		if n.Last != nil {
 			n.LBalance = n.Last.Cash
+			return nil
 		}
-		return nil
 	}
-
-	balacncestr, err := n.getDataString(index)
-	if err != nil {
-		return err
+	var balacncestr string
+	var err error
+	if index == nil {
+		balacncestr, err = n.getDataString(n.Parser.getRelation()["lbalance"])
+		if err != nil {
+			return err
+		}
+	} else {
+		balacncestr, err = n.getDataString(index)
+		if err != nil {
+			return err
+		}
 	}
-
 	if len(balacncestr) > 0 {
 		// 处理科学计数法
 		balance, err := strconv.ParseFloat(strings.ReplaceAll(balacncestr, ",", ""), 64)
 		if err != nil {
 			return errors.New("交易前余额数据解析错误！")
 		}
-		n.LBalance = balance
+		if n.Last == nil {
+			if n.getTradeType(Decrease) {
+				n.LBalance = balance + n.TradeAmount
+			} else {
+				n.LBalance = balance - n.TradeAmount
+			}
+		} else {
+			n.LBalance = balance
+		}
 		return nil
 	} else {
 		return errors.New("交易前余额不存在！")
 	}
 }
 
+func (n *TradeNode) getTradeType(t TradeType) bool {
+	if t == n.TradeType {
+		return true
+	} else {
+		return false
+	}
+}
+
 // setTradeAmountByMeta 设置交易金额
 func (n *TradeNode) setTradeAmountByMeta(index interface{}) error {
-	v := 0.0
+	v := 0.00
 	str, err := n.getDataString(index)
 	if err != nil {
 		return err
 	}
-	strs := strings.Split(str, "\t")
+	strs := strings.Split(str, SystemConfig.SpacedText)
 	for _, str := range strs {
 		tradeAmountstr := str
 		if len(tradeAmountstr) > 0 {
@@ -205,7 +220,7 @@ func (n *TradeNode) setTradeAmountByMeta(index interface{}) error {
 // 用于建立链表的第一个节点
 func (n *TradeNode) setCashByMeta(index interface{}) error {
 	if index == nil {
-		if n.TradeType == Increase {
+		if n.getTradeType(Increase) {
 			n.Cash = n.LBalance + n.TradeAmount
 		} else {
 			n.Cash = n.LBalance - n.TradeAmount
@@ -239,7 +254,7 @@ func (n *TradeNode) setDateTimeByMeta(index interface{}) error {
 		return err
 	}
 	if len(datetimestr) > 0 {
-		datetime, err := time.Parse(n.Parser.layout(), datetimestr)
+		datetime, err := time.Parse(n.Parser.getLayout(), datetimestr)
 		if err != nil {
 			return errors.New("日期时间数据解析错误！")
 		}
@@ -281,51 +296,52 @@ func (n *TradeNode) parser() error {
 		return errors.New("解析器不存在！")
 	}
 
-	m := n.Parser.matchingIndex()
+	m := n.Parser.getRelation()
 	err := n.setId()
 	if err != nil {
 		return err
 	}
 
+	// viper 解析后key为小写
 	for key, value := range m {
 		switch key {
-		case "LBalance":
+		case "lbalance":
 			err = n.setLBalanceByMeta(value)
 			if err != nil {
 				return err
 			}
 			break
-		case "Cash":
+		case "cash":
 			err = n.setCashByMeta(value)
 			if err != nil {
 				return err
 			}
 			break
-		case "DateTime":
+		case "datetime":
 			err = n.setDateTimeByMeta(value)
 			if err != nil {
 				return err
 			}
 			break
-		case "Target":
+		case "target":
 			err = n.setTargetByMeta(value)
 			if err != nil {
 				return err
 			}
 			break
-		case "TradeAmount":
+		case "tradeamount":
 			err = n.setTradeAmountByMeta(value)
 			if err != nil {
 				return err
 			}
 			break
-		case "TradeChannel":
+		case "tradechannel":
 			err = n.setTradeChannelByMeta(value)
 			if err != nil {
 				return err
 			}
 			break
-		case "Annotation":
+		case "annotation":
 			err = n.setAnnotationByMeta(value)
 			if err != nil {
 				return err
@@ -343,65 +359,43 @@ func (n *TradeNode) parser() error {
 // todo 修改参数名称
 func (n *TradeNode) getDataString(index interface{}) (string, error) {
 	var metastr string
-	switch index.(type) {
-	case int:
-		metastr = n.MetaData[index.(int)]
-		if len(metastr) <= 0 {
-			return "", errors.New("元数据内容为空！")
-		}
-		break
-	case []int:
-		arr := make([]int, 0)
-		arr = index.([]int)
-		leng := len(arr)
-		for i := 0; i < leng; i++ {
-			metastr += n.MetaData[arr[i]]
-			if len(metastr) <= 0 {
+	values := index.([]interface{})
+	for valueIndex, value := range values {
+		switch i := value.(type) {
+		case int:
+			if len(n.MetaData[i]) > 0 {
+				metastr += n.MetaData[i]
+			} else {
 				return "", errors.New("元数据内容为空！")
 			}
-			if i != leng-1 {
-				metastr += "\t"
-			}
-		}
-		break
-	case string:
-		index := n.getMetaIndexByString(index.(string))
-		if index >= 0 {
-			metastr = n.MetaData[index]
-			if len(metastr) <= 0 {
-				return "", errors.New("元数据内容为空！")
-			}
-		} else {
-			return "", errors.New("元数据表头角标数据不存在！")
-		}
-		break
-
-	case []string:
-		strs := make([]string, 0)
-		strs = index.([]string)
-		leng := len(strs)
-		for i := 0; i < leng; i++ {
-			index := n.getMetaIndexByString(strs[i])
-			if index >= 0 {
-				metastr += n.MetaData[index]
-				if len(metastr) <= 0 {
+			break
+		case string:
+			strIndex := n.getMetaIndexByString(i)
+			if strIndex >= 0 {
+				if len(n.MetaData[strIndex]) > 0 {
+					metastr += n.MetaData[strIndex]
+				} else {
 					return "", errors.New("元数据内容为空！")
-				}
-				if i != leng-1 {
-					metastr += "\t"
+
 				}
 			} else {
 				return "", errors.New("元数据表头角标数据不存在！")
 			}
+			break
 		}
-		break
+		if valueIndex != len(values)-1 {
+			metastr += SystemConfig.SpacedText
+		}
 	}
-
 	return metastr, nil
 
 }
 
+func (n *TradeNode) getDateTime() string {
+	return n.Datetime.Format(n.Parser.getLayout())
+}
+
 func (n TradeNode) String() string {
-	return fmt.Sprintf("唯一标识：%v\n交易前余额：%v\n交易后余额：%v\n交易日期：%v\n交易对象：%v\n交易类型：%v\n交易金额：%v\n交易渠道：%v\n交易标签：%v\n备注：%v\n",
-		n.Id, n.LBalance, n.Cash, n.Datetime, n.Target, n.TradeType, n.TradeAmount, n.TradeChannels, n.TradeTags, n.Annotation)
+	return fmt.Sprintf("唯一标识：%v\n交易前余额：%.2f\n交易后余额：%.2f\n交易日期：%v\n交易对象：%v\n交易类型：%v\n交易金额：%.2f\n交易渠道：%v\n交易标签：%v\n备注：%v\n",
+		n.Id, n.LBalance, n.Cash, n.getDateTime(), n.Target, n.TradeType, n.TradeAmount, n.TradeChannels, n.TradeTags, n.Annotation)
 }
