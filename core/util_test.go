@@ -13,7 +13,10 @@ import (
 
 func TestReadCSV(t *testing.T) {
 	filename := "test.csv"
-	ReadCSV(filename, nil)
+	err := ReadCSV(filename, "CCBParser", nil)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func TestNowDateString(t *testing.T) {

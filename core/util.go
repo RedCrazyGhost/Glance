@@ -22,7 +22,7 @@ import (
 // 统一使用UTF-8编码集
 // # 前缀忽略
 // todo 思考 输入数据后的处理
-func ReadCSV(filepath string, flow *TradeFlow) error {
+func ReadCSV(filepath string, parserName string, flow *TradeFlow) error {
 	if len(filepath) <= 0 {
 		return errors.New("文件名称不对！")
 	}
@@ -31,7 +31,7 @@ func ReadCSV(filepath string, flow *TradeFlow) error {
 	}
 	file, err := os.Open(filepath)
 	if err != nil {
-		return errors.New("解析文件不存在！")
+		return errors.New("文件不存在！")
 	}
 	defer file.Close()
 
@@ -41,6 +41,8 @@ func ReadCSV(filepath string, flow *TradeFlow) error {
 	r.LazyQuotes = true
 	r.ReuseRecord = true
 	r.TrimLeadingSpace = true
+
+	parser := NewParser(parserName)
 
 	title := make([]string, 0)
 	isFrist := false
@@ -60,7 +62,7 @@ func ReadCSV(filepath string, flow *TradeFlow) error {
 		} else {
 			metadata := make([]string, 0, len(title))
 			metadata = append(metadata, row...)
-			node, err := NewTradeNode(CCBParser{}, title, metadata...)
+			node, err := NewTradeNode(parser, title, metadata...)
 			if err != nil {
 				FailLog.Println(err.Error())
 			} else {
@@ -104,4 +106,9 @@ func RemoveRepeatedElement(channels []TradeChannel) []TradeChannel {
 		return tradeChannels
 	}
 	return nil
+}
+
+// readParserFile
+func readParserFile() {
+
 }
