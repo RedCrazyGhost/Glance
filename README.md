@@ -1,50 +1,65 @@
-# Glance(瞥一眼)
+# Glance
+
+## Cause
+
+为了梳理财产流水明细，保证财产链条的健康运作。
+
+此项目也因此而起。
 
 ## Glance Development Programming
-```mermaid
-gantt
-    dateFormat  MM-DD
-    section RedCrazyGhost
-    Code Consolidation :a1, 02-13, 7d
-    servitization     :after a1  , 7d
-```
 
 1. update TradeTags(trie?)
-2. add parser confige file
-3. add gin
-4. add gorm
+2. add gin
+3. add gorm
 
 
-## Use Glance
+[//]: # (## Use Glance)
 
-### Quick use Glance(推荐/recommend)
+[//]: # ()
+[//]: # (### Quick use Glance&#40;推荐/recommend&#41;)
 
-1. Download Glance application
-> file are built from source code
+[//]: # ()
+[//]: # (1. Download Glance application)
 
-2. Run Glance application file
+[//]: # (> file are built from source code)
 
-### build application
+[//]: # ()
+[//]: # (2. Run Glance application file)
 
-1. Use git clone Glance project
-```shell
-git clone https://github.com/RedCrazyGhost/Glance.git
-```
-2. Use Shell code build source code
-> In the glance directory
-```shell
-go build
-```
-3. Run the packaged execution file
+[//]: # ()
+[//]: # (### build application)
+
+[//]: # ()
+[//]: # (1. Use git clone Glance project)
+
+[//]: # (```shell)
+
+[//]: # (git clone https://github.com/RedCrazyGhost/Glance.git)
+
+[//]: # (```)
+
+[//]: # (2. Use Shell code build source code)
+
+[//]: # (> In the glance directory)
+
+[//]: # (```shell)
+
+[//]: # (go build)
+
+[//]: # (```)
+
+[//]: # (3. Run the packaged execution file)
 
 
 ## What is Glance?
-Glance is 一个自动化梳理财产流水的application
+Glance is an application of sorting out the details of property.
 
 
 
-## Why Glance？
+[//]: # (## Why Glance？)
 
-Glance does the following for you:
+[//]: # ()
+[//]: # (Glance does the following for you:)
 
-- 自动梳理
+[//]: # ()
+[//]: # (- 自动梳理)
