@@ -1,2 +1,14 @@
-Port: 8080
-SpacedText: "|"
+Run: "Shell"
+
+Shell:
+  FilePath: "/Users/wenxingzhan/Desktop/main.csv"
+  ParserName: "CCBParser"
+Server:
+  Port: 8081
+Base:
+  SpacedText: "|"
+  CSV:
+    Comment: "#"
+    LazyQuotes: true
+    ReuseRecord: true
+    TrimLeadingSpace: true

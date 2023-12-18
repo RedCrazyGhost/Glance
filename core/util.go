@@ -37,10 +37,10 @@ func ReadCSV(filepath string, parserName string, flow *TradeFlow) error {
 
 	//r := csv.NewReader(transform.NewReader(file, simplifiedchinese.GB18030.NewDecoder()))
 	r := csv.NewReader(file)
-	r.Comment = '#'
-	r.LazyQuotes = true
-	r.ReuseRecord = true
-	r.TrimLeadingSpace = true
+	r.Comment = StringFirstWordToRune(SystemConfig.Base.CSV.Comment)
+	r.LazyQuotes = SystemConfig.Base.CSV.LazyQuotes
+	r.ReuseRecord = SystemConfig.Base.CSV.ReuseRecord
+	r.TrimLeadingSpace = SystemConfig.Base.CSV.TrimLeadingSpace
 
 	parser := NewParser(parserName)
 
@@ -111,4 +111,8 @@ func RemoveRepeatedElement(channels []TradeChannel) []TradeChannel {
 // readParserFile
 func readParserFile() {
 
+}
+
+func StringFirstWordToRune(str string) rune {
+	return []rune(str)[0]
 }

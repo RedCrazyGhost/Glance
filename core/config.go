@@ -11,13 +11,35 @@ import (
 )
 
 type Config struct {
-	Port       string
+	Run    string
+	Server ServerConfig
+	Shell  ShellConfig
+	Base   BaseConfig
+}
+
+type ShellConfig struct {
+	FilePath   string
+	ParserName string
+}
+type BaseConfig struct {
 	SpacedText string
+	CSV        CSVConfig
+}
+
+type ServerConfig struct {
+	Port string
+}
+
+type CSVConfig struct {
+	Comment          string
+	LazyQuotes       bool
+	ReuseRecord      bool
+	TrimLeadingSpace bool
 }
 
 var SystemConfig *Config
 
-// initConfig 配置初始化
+// InitConfig 配置初始化
 func InitConfig() {
 
 	GloabalLog.Println("开始配置初始化！")
@@ -30,6 +52,6 @@ func InitConfig() {
 	if err := SystemViper.Unmarshal(&SystemConfig); err != nil {
 		SystemLogPool.Println("yaml配置解析失败：", err)
 	}
-
+	GloabalLog.Println(SystemConfig)
 	GloabalLog.Println("配置初始化完毕！")
 }

@@ -59,6 +59,7 @@ func NewTradeNode(parse *Parser, metatitle []string, metadata ...string) (*Trade
 }
 
 // countCash 计算当前余额
+// todo 存在初始节点交易前余额计算出错的情况
 func (n *TradeNode) countCash() error {
 	node := n
 	for {
@@ -197,7 +198,7 @@ func (n *TradeNode) setTradeAmountByMeta(index interface{}) error {
 	if err != nil {
 		return err
 	}
-	strs := strings.Split(str, SystemConfig.SpacedText)
+	strs := strings.Split(str, SystemConfig.Base.SpacedText)
 	for _, str := range strs {
 		tradeAmountstr := str
 		if len(tradeAmountstr) > 0 {
@@ -360,13 +361,16 @@ func (n *TradeNode) parser() error {
 func (n *TradeNode) getDataString(index interface{}) (string, error) {
 	var metastr string
 	values := index.([]interface{})
+	var vlen = len(values)
 	for valueIndex, value := range values {
 		switch i := value.(type) {
 		case int:
 			if len(n.MetaData[i]) > 0 {
 				metastr += n.MetaData[i]
 			} else {
-				return "", errors.New("元数据内容为空！")
+				if vlen == 1 {
+					return "", errors.New("第" + string(i) + "列元数据内容为空！")
+				}
 			}
 			break
 		case string:
@@ -375,8 +379,9 @@ func (n *TradeNode) getDataString(index interface{}) (string, error) {
 				if len(n.MetaData[strIndex]) > 0 {
 					metastr += n.MetaData[strIndex]
 				} else {
-					return "", errors.New("元数据内容为空！")
-
+					if vlen == 1 {
+						return "", errors.New("第" + string(strIndex) + "元数据内容为空！")
+					}
 				}
 			} else {
 				return "", errors.New("元数据表头角标数据不存在！")
@@ -384,7 +389,7 @@ func (n *TradeNode) getDataString(index interface{}) (string, error) {
 			break
 		}
 		if valueIndex != len(values)-1 {
-			metastr += SystemConfig.SpacedText
+			metastr += SystemConfig.Base.SpacedText
 		}
 	}
 	return metastr, nil
@@ -392,7 +397,7 @@ func (n *TradeNode) getDataString(index interface{}) (string, error) {
 }
 
 func (n *TradeNode) getDateTime() string {
-	return n.Datetime.Format(n.Parser.getLayout())
+	return n.Datetime.Format("2006/1/2")
 }
 
 func (n TradeNode) String() string {

@@ -7,8 +7,11 @@
 package core
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
+	"os"
+	"strings"
 )
 
 // TradeFlow 交易流
@@ -22,6 +25,29 @@ type TradeFlow struct {
 // NewDefaultTradeFlow 创建默认交易流
 func NewDefaultTradeFlow() *TradeFlow {
 	return &TradeFlow{nil, nil, 0}
+}
+
+func (f *TradeFlow) CreateFile() {
+	filePath := SystemConfig.Shell.FilePath[:strings.LastIndex(SystemConfig.Shell.FilePath, "/")] + "trade_flow.txt"
+	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		fmt.Println("文件打开失败", err)
+	}
+	defer file.Close()
+	write := bufio.NewWriter(file)
+	if f.Left == nil {
+		return
+	}
+	node := f.Left
+	for {
+		write.WriteString(node.String() + "\n")
+		if node.Next != nil {
+			node = node.Next
+		} else {
+			return
+		}
+	}
+	write.Flush()
 }
 
 func (f *TradeFlow) Show() {
@@ -102,6 +128,12 @@ func (f *TradeFlow) Verify() bool {
 		}
 	}
 	return flag
+}
+
+// Option 原始交易交易链 生成新的交易链
+func (f TradeFlow) Option() *TradeFlow {
+	return nil
+
 }
 
 func (f TradeFlow) String() string {

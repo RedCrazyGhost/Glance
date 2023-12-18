@@ -37,14 +37,17 @@ func NewParser(fileName string) *Parser {
 	return parser
 }
 
+// setRelation 设置匹配对应关系
 func (p *Parser) setRelation(m map[string]interface{}) {
 	p.Relation = m
 }
 
+// getLayout 获取日期时间模版
 func (p *Parser) getLayout() string {
 	return p.Layout
 }
 
+// getRelation 获取匹配对应关系
 func (p *Parser) getRelation() map[string]interface{} {
 	return p.Relation
 }
